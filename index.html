@@ -1,39 +1,235 @@
 <!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-		<title>Focus</title>
-		<link href="CSS.css" rel="stylesheet" type="text/css">
-		<script src="JS.js"></script>
-		
-	</head>
-	<body>
-		<main>
-            <h1>Managing Keyboard Focus</h1>
-            <p>Instructions: Use 'up & down arrow keys' to navigate between menu items (need fix!), 'enter' to activate menu item, 'escape' key to close menu.</p>
-            <h2>What to do:</h2>
-            <p>Apply roving index technique to programmatically manage the keyboard focus on the menu (on keys arrow up and down).</p>
-            <div class="menu-button-actions">
-                <p>
-                    <label>Pizza Choice:<br> <input class="action" id="action_output" type="text" value=""></label>
-                  </p>
-                <button type="button" id="menubutton1" aria-haspopup="true" aria-controls="menu1">
-                  Pizza Menu
-                  <svg xmlns="http://www.w3.org/2000/svg" class="down" width="12" height="9" viewBox="0 0 12 9">
-                    <polygon points="1 0, 11 0, 6 8"></polygon>
-                  </svg>
-                </button>
-                
-                <ul id="menu1" role="menu" aria-labelledby="menubutton1">
-                  <li role="menuitem">Pizza 1</li>
-                  <li role="menuitem">Pizza 2</li>
-                  <li role="menuitem">Pizza 3</li>
-                  <li role="menuitem">Pizza 4</li>
-                </ul>
-              </div>
-              
-                      
-		</main>
-	</body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Focus</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    
+    h1 {
+      color: #333;
+    }
+    
+    .menu-button-actions {
+      margin-top: 30px;
+    }
+    
+    #menubutton1 {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #ff0000;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    #menubutton1:hover {
+      background: #b30000;
+    }
+    
+    #menubutton1:focus {
+      outline: 2px solid #b30000;
+      outline-offset: 2px;
+    }
+    
+    .down {
+      fill: white;
+    }
+    
+    #menu1 {
+      display: none;
+      list-style: none;
+      padding: 0;
+      margin: 10px 0;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      min-width: 200px;
+    }
+    
+    #menu1 li {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+    
+    #menu1 li:last-child {
+      border-bottom: none;
+    }
+    
+    #menu1 li:hover {
+      background: #f0f0f0;
+    }
+    
+    #menu1 li:focus {
+      background: #e3f2fd;
+      outline: 2px solid #007bff;
+      outline-offset: -2px;
+    }
+    
+    input {
+      padding: 8px;
+      font-size: 14px;
+      width: 200px;
+      margin-top: 5px;
+    }
+    
+    label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Managing Keyboard Focus</h1>
+    <p>Instructions: Use 'up & down arrow keys' to navigate between menu items (need fix!), 'enter' to activate menu item, 'escape' key to close menu.</p>
+    <h2>What to do:</h2>
+    <p>Apply roving index technique to programmatically manage the keyboard focus on the menu (on keys arrow up and down).</p>
+    
+    <div class="menu-button-actions">
+      <p>
+        <label>Pizza Choice:<br>
+          <input class="action" id="action_output" type="text" value="">
+        </label>
+      </p>
+      <button type="button" id="menubutton1" aria-haspopup="true" aria-controls="menu1">
+        Pizza Menu
+        <svg xmlns="http://www.w3.org/2000/svg" class="down" width="12" height="9" viewBox="0 0 12 9">
+          <polygon points="1 0, 11 0, 6 8"></polygon>
+        </svg>
+      </button>
+      <ul id="menu1" role="menu" aria-labelledby="menubutton1">
+        <li role="menuitem">Pizza 1</li>
+        <li role="menuitem">Pizza 2</li>
+        <li role="menuitem">Pizza 3</li>
+        <li role="menuitem">Pizza 4</li>
+      </ul>
+    </div>
+  </main>
+
+  <script>
+    // ROVING INDEX IMPLEMENTATION
+    // Menu Button and Items
+    const menuButton = document.getElementById('menubutton1');
+    const menu = document.getElementById('menu1');
+    const menuItems = menu.querySelectorAll('[role="menuitem"]');
+    const output = document.getElementById('action_output');
+
+    let isOpen = false;
+    let currentIndex = 0;
+
+    //Initialized tabindex for all menu items
+    function initializeTabIndex() {
+      menuItems.forEach((item, index) => {
+        item.tabIndex = index === 0 ? 0 : -1;
+      });
+    }
+
+    // Set the focus to specific menu item using roving index
+    function setFocusToMenuItem(index) {
+      // Updated tabindex: current item gets 0, all others get -1
+      menuItems.forEach((item, i) => {
+        item.tabIndex = i === index ? 0 : -1;
+      });
+      
+      // Applied focus to the new element
+      menuItems[index].focus();
+      currentIndex = index;
+    }
+
+    // Open menu
+    function openMenu() {
+      menu.style.display = 'block';
+      isOpen = true;
+      currentIndex = 0;
+      setFocusToMenuItem(0); // Use roving index function
+    }
+
+    // Close menu
+    function closeMenu() {
+      menu.style.display = 'none';
+      isOpen = false;
+      menuButton.focus();
+    }
+
+    // Menu button click handler
+    menuButton.addEventListener('click', () => {
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+
+    // Menu button keyboard handler
+    menuButton.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openMenu();
+      }
+    });
+
+    // Menu item click handler
+    menuItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        output.value = item.textContent;
+        closeMenu();
+      });
+    });
+
+    //Menu keyboard navigation with roving index
+    menu.addEventListener('keydown', (e) => {
+      if (!isOpen) return;
+      
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          // Move to next item (wrap to beginning if at end)
+          const nextIndex = (currentIndex + 1) % menuItems.length;
+          setFocusToMenuItem(nextIndex);
+          break;
+          
+        case 'ArrowUp':
+          e.preventDefault();
+          // Move to previous item (wrap to end if at beginning)
+          const prevIndex = currentIndex === 0 ? menuItems.length - 1 : currentIndex - 1;
+          setFocusToMenuItem(prevIndex);
+          break;
+          
+        case 'Enter':
+          e.preventDefault();
+          output.value = menuItems[currentIndex].textContent;
+          closeMenu();
+          break;
+          
+        case 'Escape':
+          e.preventDefault();
+          closeMenu();
+          break;
+      }
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (isOpen && !menu.contains(e.target) && e.target !== menuButton) {
+        closeMenu();
+      }
+    });
+
+    //Initialize on page load
+    initializeTabIndex();
+    
+  </script>
+</body>
 </html>
