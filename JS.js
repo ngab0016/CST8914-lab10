@@ -71,7 +71,7 @@ class MenuButtonActions {
   // Moved focus to the newly focused element
   newMenuitem.focus();
 }
-);
+
   }
 
   setFocusToFirstMenuitem() {
