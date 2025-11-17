@@ -72,8 +72,6 @@ class MenuButtonActions {
   newMenuitem.focus();
 }
 
-  }
-
   setFocusToFirstMenuitem() {
     this.setFocusToMenuitem(this.firstMenuitem);
   }
